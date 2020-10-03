@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# This script comes with ABSOLUTELY NO WARRANTY, use at own risk
+# Copyright (C) 2019 Osiris Alejandro Gomez <osiux@osiux.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Inspired On:
+# https://unix.stackexchange.com/questions/103252/how-do-i-get-a-websites-title-using-command-line
+
+# shellcheck disable=SC2005
+
+[[ -z "$1" ]] && exit 1
+URL="$1"
+URL_CACHE="$HOME/.cache/url2title"
+UA='Mozilla/5.0 (X11; Linux x86_64; rv:70) Gecko/20100101 Firefox/70'
+
+url()
+{
+  curl -A "$UA" -s -o /dev/null -w "%{http_code} %{redirect_url}" "$1"
+}
+
+title()
+{
+  curl -A "$UA" -s "$1"                                   \
+    | perl -l -0777                                       \
+      -ne 'print $1 if /<title.*?>\s*(.*?)\s*<\/title/si' \
+        | tr '\n' ' '                                     \
+        | sed "s/&#039;/'/g"                              \
+        | sed "s/&#39;/'/g"                               \
+        | sed "s/&#x27;/'/g"                              \
+        | sed 's/&#171;/«/g'                              \
+        | sed 's/&#8211;/-/g'                             \
+        | sed 's/&#8212;/-/g'                             \
+        | sed 's/&#x1f4bb;/💻/g'                          \
+        | sed 's/&#x1f468;/👨/g'                          \
+        | sed 's/&#x200d;//g'                             \
+        | sed 's/&amp;/&/g'                               \
+        | sed 's/&gt;/>/g'                                \
+        | sed 's/&hellip;/…/g'                            \
+        | sed 's/&laquo;/«/g'                             \
+        | sed 's/&larr;/←/g'                              \
+        | sed 's/&lt;/</g'                                \
+        | sed 's/&mdash;/-/g'                             \
+        | sed 's/&middot;/./g'                            \
+        | sed 's/&nbsp;/ /g'                              \
+        | sed 's/&ndash;/-/g'                             \
+        | sed 's/&ntilde;/ñ/g'                            \
+        | sed 's/&quot;/"/g'                              \
+        | sed 's/ \+/ /g'                                 \
+        | sed 's/“/"/g'                                   \
+        | sed 's/”/"/g'                                   \
+        | sed 's/ $//g'                                   \
+        | sed 's/^ $//g'
+}
+
+fetch()
+{
+
+echo "$(url "$1")" | while read -r CODE REDIRECT
+do
+
+  [[ "$CODE" = '404' ]] && exit 4
+  [[ "$CODE" = '301' ]] && fetch "$REDIRECT"
+  # FIXME sometimes return *302 Found*
+  [[ "$CODE" = '302' ]] && fetch "$REDIRECT"
+  if [[ "$CODE" = '200' ]]
+  then
+    TITLE=$(title "$1")
+    [[ ! -z "$TITLE" ]] && echo "$URL|$TITLE" >> "$URL_CACHE"
+    echo "$TITLE"
+  else
+    exit 1
+  fi
+done
+
+}
+
+read_cache()
+{
+  [[ ! -e "$URL_CACHE" ]] && touch "$URL_CACHE"
+  grep -w "$1" "$URL_CACHE" | cut -d'|' -f2-
+}
+
+CACHE=$(read_cache "$URL")
+
+if [[ ! -z "$CACHE" ]]
+then
+  echo "$CACHE"
+else
+  fetch "$URL"
+fi
