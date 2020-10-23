@@ -39,7 +39,7 @@ die()
 
 get_title()
 {
-  $BIN_BASH ./url2title "$U" \
+  $BIN_BASH url2title "$U" \
   | tr -d '[]'               \
   | sed 's/GitHub - .*: //g'
 }
