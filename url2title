@@ -46,7 +46,7 @@ title()
         | sed 's/&#x1f4bb;/💻/g'                          \
         | sed 's/&#x1f468;/👨/g'                          \
         | sed 's/&#x200d;//g'                             \
-        | sed 's/&amp;/&/g'                               \
+        | sed 's/&amp;/\&/g'                              \
         | sed 's/&gt;/>/g'                                \
         | sed 's/&hellip;/…/g'                            \
         | sed 's/&laquo;/«/g'                             \
