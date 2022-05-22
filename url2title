@@ -73,12 +73,16 @@ do
 
   [[ "$CODE" = '404' ]] && exit 4
   [[ "$CODE" = '301' ]] && fetch "$REDIRECT"
-  # FIXME sometimes return *302 Found*
-  [[ "$CODE" = '302' ]] && fetch "$REDIRECT"
+
+  if [[ "$CODE" = '302' ]]
+  then
+    [[ "$2" != '302' ]] && fetch "$REDIRECT" "$CODE"
+  fi
+
   if [[ "$CODE" = '200' ]]
   then
     TITLE=$(title "$1")
-    [[ ! -z "$TITLE" ]] && echo "$URL|$TITLE" >> "$URL_CACHE"
+    [[ -z "$TITLE" ]] || echo "$URL|$TITLE" >> "$URL_CACHE"
     echo "$TITLE"
   else
     exit 1
@@ -89,15 +93,15 @@ done
 
 read_cache()
 {
-  [[ ! -e "$URL_CACHE" ]] && touch "$URL_CACHE"
+  [[ -e "$URL_CACHE" ]] || touch "$URL_CACHE"
   grep -w "$1" "$URL_CACHE" | cut -d'|' -f2-
 }
 
 CACHE=$(read_cache "$URL")
 
-if [[ ! -z "$CACHE" ]]
+if [[ -z "$CACHE" ]]
 then
-  echo "$CACHE"
-else
   fetch "$URL"
+else
+  echo "$CACHE"
 fi
