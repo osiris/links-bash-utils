@@ -20,6 +20,8 @@
 # shellcheck disable=SC2002
 # shellcheck disable=SC1117
 
+START="$(date +%s)"
+
 RED="$(tput setaf 196)"
 
 TMP0=$(mktemp)
@@ -36,6 +38,11 @@ BIN_BASH="$(command -v bash)"
 die()
 {
   printf "%s\n" "${RED}[ERROR] $1 $NORMAL" && exit 1
+}
+
+stderror ()
+{
+  echo >&2 "$1"
 }
 
 get_title()
@@ -116,7 +123,7 @@ do
 
     [[ -z "$U" ]] && continue
     [[ -z "$DATE" ]] && continue
-
+    stderror "$U"
     TITLE="$(get_title "$U")"
 
     if [[ -z "$TITLE" ]]
@@ -133,3 +140,9 @@ done >> "$ORG"
 rm -f "$TMP0"
 rm -f "$TMP1"
 rm -f "$TMP2"
+
+END="$(date +%s)"
+
+SECONDS="$((END-START))"
+
+stderror "total time $SECONDS seconds"
