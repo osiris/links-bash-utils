@@ -93,6 +93,17 @@ awk '{print $1}' "$TMP1" | sort -u > "$TMP2"
 
 [[ -e "$ORG" ]] && true         >  "$ORG"
 [[ -e "$HDR" ]] && cat "$HDR"   >> "$ORG"
+
+printf "\\n** Categories\\n\\n"    >> "$ORG"
+
+cat "$TMP2"       \
+  | tr -d '+'     \
+  | grep -Ev '^$' \
+  | while read -r C
+do
+  printf "[[file:links.org::#+%s][=+%s=]] \\n" "$C" "$C"
+done >> "$ORG"
+
 printf "\\n** Recents links\\n" >> "$ORG"
 
 tail -30 "$TXT" | sort -nr | while read -r DATE U C
