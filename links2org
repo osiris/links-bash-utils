@@ -45,9 +45,9 @@ get_title()
   | sed 's/GitHub - .*: //g'
 }
 
-[[ ! -z "$1" ]] && TXT="$1"
-[[ ! -z "$2" ]] && ORG="$2"
-[[ ! -z "$3" ]] && HDR="$3"
+[[ -z "$1" ]] || TXT="$1"
+[[ -z "$2" ]] || ORG="$2"
+[[ -z "$3" ]] || HDR="$3"
 
 for FILE in $TXT $HRD
 do
