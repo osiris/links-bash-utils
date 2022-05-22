@@ -27,6 +27,7 @@ TMP1=$(mktemp)
 TMP2=$(mktemp)
 
 TXT='links.txt'
+BAK='links.bak'
 ORG='links.org'
 HDR="$HOME/blog/header-links.org"
 
@@ -54,6 +55,8 @@ do
   [[ ! -s "$FILE" ]] && die "EMPTY $FILE"
 done
 
+BAK="$(basename "$TXT" .txt).bak"
+
 sed -i 's/+$//g' "$TXT"
 sed -i 's/blob\/master\/README.md//gI' "$TXT"
 sed -i 's/blob\/dev\/README.md//gI' "$TXT"
@@ -61,6 +64,8 @@ sed -i 's/blob\/dev\/README.md//gI' "$TXT"
 sort -u "$TXT" | sponge "$TXT"
 
 awk '{print $2}' "$TXT" | sort -u > "$TMP0"
+
+true > "$BAK"
 
 grep -f "$TMP0" "$TXT" | sort -u | sort -k3 | while read -r D U C
 do
@@ -71,7 +76,10 @@ do
 
   printf "%s %s %s\\n" "$CATEGORY" "$DATE" "$U"
 
+  echo "$D $U $CATEGORY" >> "$BAK"
 done > "$TMP1"
+
+sort -u "$BAK" > "$TXT"
 
 awk '{print $1}' "$TMP1" | sort -u > "$TMP2"
 
