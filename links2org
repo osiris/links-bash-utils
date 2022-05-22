@@ -65,6 +65,7 @@ done
 BAK="$(basename "$TXT" .txt).bak"
 
 sed -i 's/+$//g' "$TXT"
+sed -i 's/ + +/ +/g' "$TXT"
 sed -i 's/blob\/master\/README.md//gI' "$TXT"
 sed -i 's/blob\/dev\/README.md//gI' "$TXT"
 
