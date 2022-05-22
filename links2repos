@@ -38,4 +38,4 @@ awk '{print $2}' "$TXT"  \
         DIR="${GIT}/${TAG//+/}/$REPO"
         printf "%-72s %s\\n" "$DIR" "$URL"
       done
-    done | sort
+    done | sort -u
