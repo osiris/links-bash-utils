@@ -16,13 +16,72 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-TXT='links.txt'
-REGEX='^https://git(hub|lab)\.com/'
+BIN="$(basename "$0")"
+RED="$(tput setaf 196)"
+NORMAL="$(tput sgr0)"
 GIT='git'
+REGEX='^https://git(hub|lab)\.com/'
+TXT='links.txt'
 
-[[ ! -z "$1"   ]] && TXT="$1"
-[[ ! -z "$2"   ]] && GIT="$2"
-[[ ! -e "$TXT" ]] && exit 1
+die ()
+{
+  printf "%s\\n" "${RED}[ERROR] $1 $NORMAL" && usage && exit 1
+}
+
+function usage()
+{
+cat << EOF
+
+Usage:
+
+\`\`\`bash
+
+  $BIN [LINKS_FILE] [GIT_DIR] [REGEX]
+
+\`\`\`
+
+Extract _github_ and _gitlab_ urls from \`links.txt\` using tags to
+group in directories and generate \`.git-repos\` output format.
+
+Example:
+
+\`\`\`bash
+
+  cat links.txt
+
+    2020-09-27 https://github.com/muesli/duf +tty
+    2020-09-27 https://shaunlebron.github.io/pacman-mazegen/ +game
+    2020-09-28 https://github.com/hlissner/doom-emacs +emacs
+    2020-09-28 https://github.com/shoumikchow/bbox-visualizer +viz
+    2020-09-30 https://github.com/mytechnotalent/Python-For-Kids +python
+    2020-09-30 https://github.com/tridactyl/tridactyl +vim
+    2020-09-30 https://mosermichael.github.io/duckduckbang/html/main.html +http
+    2020-10-01 https://github.com/koutto/hardware-hacking/blob/master/Hardware-Hacking-Experiments-Jeremy-Brun-Nouvion-2020.pdf +hack
+    2020-10-01 https://github.com/rbanffy/3270font +font
+    2020-10-02 https://google.github.io/styleguide/shellguide.html +bash
+
+  $BIN links.txt
+
+    git/emacs/doom-emacs        https://github.com/hlissner/doom-emacs
+    git/font/3270font           https://github.com/rbanffy/3270font
+    git/hack/hardware-hacking   https://github.com/koutto/hardware-hacking
+    git/python/Python-For-Kids  https://github.com/mytechnotalent/Python-For-Kids
+    git/tty/duf                 https://github.com/muesli/duf
+    git/vim/tridactyl           https://github.com/tridactyl/tridactyl
+    git/viz/bbox-visualizer     https://github.com/shoumikchow/bbox-visualizer
+
+\`\`\`
+
+EOF
+exit 0
+}
+
+[[ "$1" =~ ^[-]+(h|help) ]] && usage
+
+[[ -z "$1"   ]] || TXT="$1"
+[[ -z "$2"   ]] || GIT="$2"
+[[ -z "$3"   ]] || REGEX="$3"
+[[ -e "$TXT" ]] || die "NOT FOUND FILE: $TXT"
 
 awk '{print $2}' "$TXT"  \
   | grep -E "$REGEX"     \
