@@ -28,12 +28,12 @@ UA='Mozilla/5.0 (X11; Linux x86_64; rv:70) Gecko/20100101 Firefox/70'
 
 url()
 {
-  curl -A "$UA" -s -o /dev/null -w "%{http_code} %{redirect_url}" "$1"
+  curl --connect-timeout 2 --max-time 4 -A "$UA" -s -o /dev/null -w "%{http_code} %{redirect_url}" "$1"
 }
 
 title()
 {
-  curl -A "$UA" -s "$1"                                   \
+  curl --connect-timeout 2 --max-time 4 -A "$UA" -s "$1"  \
     | perl -l -0777                                       \
       -ne 'print $1 if /<title.*?>\s*(.*?)\s*<\/title/si' \
         | tr '\n' ' '                                     \
