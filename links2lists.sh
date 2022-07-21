@@ -30,8 +30,8 @@ TMP2=$(mktemp)
 
 TXT='links.txt'
 BAK='links.bak'
-ORG='links.org'
-HDR="$HOME/blog/header-links.org"
+LST='lists.txt'
+HDR="$HOME/blog/header-links.txt"
 
 BIN_BASH="$(command -v bash)"
 
@@ -53,7 +53,7 @@ get_title()
 }
 
 [[ -z "$1" ]] || TXT="$1"
-[[ -z "$2" ]] || ORG="$2"
+[[ -z "$2" ]] || LST="$2"
 [[ -z "$3" ]] || HDR="$3"
 
 for FILE in $TXT $HRD
@@ -91,20 +91,10 @@ sort -u "$BAK" > "$TXT"
 
 awk '{print $1}' "$TMP1" | sort -u > "$TMP2"
 
-[[ -e "$ORG" ]] && true         >  "$ORG"
-[[ -e "$HDR" ]] && cat "$HDR"   >> "$ORG"
+[[ -e "$LST" ]] && true         >  "$LNK"
+[[ -e "$HDR" ]] && cat "$HDR"   >> "$LST"
 
-printf "\\n** Categories\\n\\n"    >> "$ORG"
-
-cat "$TMP2"       \
-  | tr -d '+'     \
-  | grep -Ev '^$' \
-  | while read -r C
-do
-  printf "[[file:links.org::#+%s][=+%s=]] \\n" "$C" "$C"
-done >> "$ORG"
-
-printf "\\n** Recents links\\n" >> "$ORG"
+printf "\\n## Recents links\\n\\n" >> "$LST"
 
 tail -30 "$TXT" | sort -nr | while read -r DATE U C
 do
@@ -113,21 +103,18 @@ do
 
   if [[ -z "$TITLE" ]]
   then
-    printf "*** =%s= %s [[file:links.org::#%s][=%s=]]\\n" "$DATE" "$U" "$C" "$C"
+    printf "=> %s\\n" "$U"
   else
-    printf "*** =%s= [[%s][%s]] [[file:links.org::#%s][=%s=]]\\n" "$DATE" "$U" "$TITLE" "$C" "$C"
+    printf "=> %s %s\\n" "$U" "$TITLE"
   fi
 
-done >> "$ORG"
+done >> "$LST"
 
-printf "\\n" >> "$ORG"
+printf "\\n" >> "$LST"
 
 cat "$TMP2" | while read -r C
 do
-  printf "** =%s=\\n" "$C"
-  printf "   :PROPERTIES:\\n"
-  printf "   :CUSTOM_ID: %s\\n" "$C"
-  printf "   :END:\\n"
+  printf "\\n## %s\\n\\n" "$C"
 
   REGEXP="^\+$C"
   grep -E "$REGEXP" "$TMP1" | sort -u | while read -r _ DATE U
@@ -140,14 +127,14 @@ do
 
     if [[ -z "$TITLE" ]]
     then
-      printf "*** =%s= %s\\n" "$DATE" "$U"
+      printf "=> %s\\n" "$U"
     else
-      printf "*** =%s= [[%s][%s]]\\n" "$DATE" "$U" "$TITLE"
+      printf "=> %s %s\\n" "$U" "$TITLE"
     fi
 
   done
 
-done >> "$ORG"
+done >> "$LST"
 
 rm -f "$TMP0"
 rm -f "$TMP1"
