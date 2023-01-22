@@ -77,12 +77,11 @@ true > "$BAK"
 
 grep -f "$TMP0" "$TXT" | sort -u | sort -k3 | while read -r D U C
 do
-  DATE=$(echo "$D" | grep -E -o '[0-9]{4}-[0-9]{2}-[0-9]{2}')
   CATEGORY=$(echo "$C" | tr ' ' '\n' | head -1)
 
   [[ -z "$CATEGORY" ]] && CATEGORY="+unknown"
 
-  printf "%s %s %s\\n" "$CATEGORY" "$DATE" "$U"
+  printf "%s %s\\n" "$CATEGORY" "$U"
 
   echo "$D $U $CATEGORY" >> "$BAK"
 done > "$TMP1"
@@ -113,9 +112,9 @@ do
 
   if [[ -z "$TITLE" ]]
   then
-    printf "*** =%s= %s [[file:links.org::#%s][=%s=]]\\n" "$DATE" "$U" "$C" "$C"
+    printf "*** %s [[file:links.org::#%s][=%s=]]\\n" "$U" "$C" "$C"
   else
-    printf "*** =%s= [[%s][%s]] [[file:links.org::#%s][=%s=]]\\n" "$DATE" "$U" "$TITLE" "$C" "$C"
+    printf "*** [[%s][%s]] [[file:links.org::#%s][=%s=]]\\n" "$U" "$TITLE" "$C" "$C"
   fi
 
 done >> "$ORG"
@@ -129,20 +128,19 @@ do
   printf "   :CUSTOM_ID: %s\\n" "$C"
   printf "   :END:\\n"
 
-  REGEXP="^\+$C"
-  grep -E "$REGEXP" "$TMP1" | sort -u | while read -r _ DATE U
+  REGEXP="^\+${C//+/}"
+  grep -E "$REGEXP" "$TMP1" | sort -u | while read -r _ U
   do
 
     [[ -z "$U" ]] && continue
-    [[ -z "$DATE" ]] && continue
     stderror "$U"
     TITLE="$(get_title "$U")"
 
     if [[ -z "$TITLE" ]]
     then
-      printf "*** =%s= %s\\n" "$DATE" "$U"
+      printf "*** %s\\n" "$U"
     else
-      printf "*** =%s= [[%s][%s]]\\n" "$DATE" "$U" "$TITLE"
+      printf "*** [[%s][%s]]\\n" "$U" "$TITLE"
     fi
 
   done
