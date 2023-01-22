@@ -23,8 +23,9 @@
 
 [[ -z "$1" ]] && exit 1
 URL="$1"
-URL_CACHE="$HOME/.cache/url2title"
-UA='Mozilla/5.0 (X11; Linux x86_64; rv:70) Gecko/20100101 Firefox/70'
+[[ -n "$URL_CACHE"      ]] || URL_CACHE="$HOME/.cache/url2title"
+[[ -e "$PWD/.url2title" ]] && URL_CACHE="$PWD/.url2title"
+[[ -n "$UA"             ]] || UA='Mozilla/5.0 (X11; Linux x86_64; rv:70) Gecko/20100101 Firefox/70'
 
 url()
 {
