@@ -23,8 +23,9 @@
 
 [[ -z "$1" ]] && exit 1
 URL="$1"
-URL_CACHE="$HOME/.cache/url2title"
-UA='Mozilla/5.0 (X11; Linux x86_64; rv:70) Gecko/20100101 Firefox/70'
+[[ -n "$URL_CACHE"      ]] || URL_CACHE="$HOME/.cache/url2title"
+[[ -e "$PWD/.url2title" ]] && URL_CACHE="$PWD/.url2title"
+[[ -n "$UA"             ]] || UA='Mozilla/5.0 (X11; Linux x86_64; rv:70) Gecko/20100101 Firefox/70'
 
 url()
 {
@@ -94,7 +95,7 @@ done
 read_cache()
 {
   [[ -e "$URL_CACHE" ]] || touch "$URL_CACHE"
-  grep -w "$1" "$URL_CACHE" | cut -d'|' -f2-
+  grep -w "$1" -m 1 "$URL_CACHE" | cut -d'|' -f2-
 }
 
 CACHE=$(read_cache "$URL")
