@@ -95,7 +95,7 @@ done
 read_cache()
 {
   [[ -e "$URL_CACHE" ]] || touch "$URL_CACHE"
-  grep -w "$1" "$URL_CACHE" | cut -d'|' -f2-
+  grep -w "$1" -m 1 "$URL_CACHE" | cut -d'|' -f2-
 }
 
 CACHE=$(read_cache "$URL")
