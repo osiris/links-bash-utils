@@ -31,7 +31,8 @@ TMP2=$(mktemp)
 TXT='links.txt'
 BAK='links.bak'
 ORG='links.org'
-HDR="$HOME/blog/header-links.org"
+[[ -n "$HDR"                  ]] || HDR="$HOME/blog/header-links.org"
+[[ -e "$PWD/header-links.org" ]] && HDR="$PWD/header-links.org"
 
 BIN_BASH="$(command -v bash)"
 
